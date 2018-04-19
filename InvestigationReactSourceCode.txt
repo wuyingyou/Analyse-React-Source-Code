@@ -1,0 +1,331 @@
+1. ReactDOM.render
+2. var nextWrappedElement = React.createElement(TopLevelWrapper, { child: nextElement }); -- nextElement is React component, say App root component.
+3. Root Element -- nextWrappedElement
+	{
+		$$typeof: REACT_ELEMENT_TYPE,
+		type: type,
+		key: key,
+		ref: ref,
+		props: { child: nextElement},
+		_owner: owner
+	}
+4. instantiateReactComponent(nextWrappedElement)
+5. instance = new ReactCompositeComponentWrapper(nextWrappedElement);
+	{
+		_currentElement: {
+							$$typeof: REACT_ELEMENT_TYPE,
+							type: type,
+							key: key,
+							ref: ref,
+							props: { child: nextElement},
+							_owner: owner
+						},
+		_rootNodeID:0,
+		_compositeType:null,
+		_instance:null,
+		_hostParent:null,
+		_hostContainerInfo:null,
+		_updateBatchNumber:null,
+		_pendingElement:null,
+		_pendingStateQueue:null,
+		_pendingReplaceState:false,
+		_pendingForceUpdate: false,
+		_renderedNodeType:null,
+		_renderedComponent:null,
+		_context:null,
+		_mountOrder:0,
+		_topLevelWrapper:null,
+		_pendingCallbacks:null,
+		_calledComponentWillUnmount:false
+	}
+	
+6. ReactUpdates.batchedUpdates(batchedMountComponentIntoNode, componentInstance, container, shouldReuseMarkup, context); // componentInstance = instance 
+	batchedMountComponentIntoNode is used to render Virtual Dom to html Dom
+
+7. ReactUpdates.batchedUpdates -> 
+   batchingStrategy.batchedUpdates(callback, a, b, c, d, e) === ReactDefaultBatchingStrategy.batchedUpdates ->
+   ReactDefaultBatchingStrategyTransaction.perform === callback(a, b, c, d, e)
+   
+   after batchingStrategy.batchedUpdates the transaction is due to close, that invoke ReactUpdates.flushBatchedUpdates. ->
+   
+   ReactUpdates.flushBatchedUpdates -> in ReactUpdatesFlushTransaction perform 'runBatchedUpdates' ->
+   
+   ReactReconciler.performUpdateIfNecessary(internalInstance, transaction.reconcileTransaction, updateBatchNumber) ->
+   
+   internalInstance.performUpdateIfNecessary(transaction) -> ReactCompositeComponent.performUpdateIfNecessary(transaction) ->
+   
+   ReactCompositeComponent.updateComponent or ReactReconciler.receiveComponent ->
+   
+   _performComponentUpdate -> 
+   
+   if (shouldUpdateReactComponent(prevRenderedElement, nextRenderedElement)) {
+      ReactReconciler.receiveComponent(prevComponentInstance, nextRenderedElement, transaction, this._processChildContext(context));
+   } ->
+
+   ReactReconciler.receiveComponent ->
+   
+   internalInstance.receiveComponent(nextElement, transaction, context)  === ReactDOMComponent.receiveComponent
+   
+   
+        if (this._compositeType === CompositeTypes.PureClass) {
+              debugger;
+          shouldUpdate = !shallowEqual(prevProps, nextProps) || !shallowEqual(inst.state, nextState);
+        }
+   
+   
+   
+   ReactChildReconciler.updateChildren(prevChildren, nextChildren, mountImages, removedNodes, transaction, this, this._hostContainerInfo, context, selfDebugID);
+   
+
+
+CommonJS RequireJS AMD
+////////////////
+1. The modules in package 15.4 react.js & react-dom.js looks like
+
+	(function(f) {
+	  // CommonJS
+	  if (typeof exports === "object" && typeof module !== "undefined") {
+		module.exports = f(require('react'));
+
+	  // RequireJS
+	  } else if (typeof define === "function" && define.amd) {
+		define(['react'], f);
+
+	  // <script>
+	  } else {
+		var g;
+		if (typeof window !== "undefined") {
+		  g = window;
+		} else if (typeof global !== "undefined") {
+		  g = global;
+		} else if (typeof self !== "undefined") {
+		  g = self;
+		} else {
+		  // works providing we're not in "use strict";
+		  // needed for Java 8 Nashorn
+		  // see https://github.com/facebook/react/issues/3037
+		  g = this;
+		}
+		g.ReactDOM = f(g.React);
+	  }
+	})(function(React){
+	  return (function(f){return f()})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})
+	  ({
+		1:[function(_dereq_,module,exports){... module.exports = { A: _a }}, {}],
+		2:[function(_dereq_,module,exports){... module.exports = { B: _b }}, {}],
+		3:[function(_dereq_,module,exports){... module.exports = { C: _c }}, {}]	
+	})
+
+2. Then we can import the module A to B, and the 1 means module A, 2 is module B, 3 is module C in the example below.
+	...
+	(function(React){
+	  return (function(f){return f()})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})
+	  ({
+		1:[function(_dereq_,module,exports){...;var B = _dereq_(2); var C = _dereq_(3); module.exports = { A: _a }}, {}],
+		2:[function(_dereq_,module,exports){...; module.exports = { B: _b }}, {}],
+		3:[function(_dereq_,module,exports){...; module.exports = { C: _c }}, {}]	
+	})
+///////////////
+
+
+
+///////////////////
+React Injection Mechanism the module is 52.
+
+module:
+   {52:[function(_dereq_,module,exports){
+		var alreadyInjected = false;		
+		function inject() {
+		  if (alreadyInjected) {
+			return;
+		  }
+		  alreadyInjected = true;
+		  ...
+		  ReactInjection.Updates.injectReconcileTransaction(ReactReconcileTransaction);
+		  ReactInjection.Updates.injectBatchingStrategy(ReactDefaultBatchingStrategy);
+		  ReactInjection.Component.injectEnvironment(ReactComponentBrowserEnvironment);
+		}
+		module.exports = {inject: inject};
+   },{}]}
+
+1. var ReactDefaultInjection = _dereq_(52);
+2. ReactDefaultInjection.inject();
+3. var ReactInjection = {
+	  Component: ReactComponentEnvironment.injection,
+	  DOMProperty: DOMProperty.injection,
+	  EmptyComponent: ReactEmptyComponent.injection,
+	  EventPluginHub: EventPluginHub.injection,
+	  EventPluginUtils: EventPluginUtils.injection,
+	  EventEmitter: ReactBrowserEventEmitter.injection,
+	  HostComponent: ReactHostComponent.injection,
+	  Updates: ReactUpdates.injection
+	}
+///////////////////
+
+///////////////////
+Transaction module.
+
+1. ReactDefaultBatchingStrategy leverage ReactDefaultBatchingStrategyTransaction which is due to run 'ReactUpdates.flushBatchedUpdates', then call ReactUpdates.runBatchedUpdates in ReactUpdatesFlushTransaction.
+2. ReactUpdatesFlushTransaction is due to call flushBatchedUpdates as well
+3. ReactReconcileTransaction 
+
+
+var TransactionImpl = {
+  reinitializeTransaction: function () {
+    this.transactionWrappers = this.getTransactionWrappers();
+    if (this.wrapperInitData) {
+      this.wrapperInitData.length = 0;
+    } else {
+      this.wrapperInitData = [];
+    }
+    this._isInTransaction = false;
+  },
+  _isInTransaction: false,
+  getTransactionWrappers: null,
+  isInTransaction: function () {
+    return !!this._isInTransaction;
+  },
+  perform: function (method, scope, a, b, c, d, e, f) {
+    !!this.isInTransaction() ? "development" !== 'production' ? invariant(false, 'Transaction.perform(...): Cannot initialize a transaction when there is already an outstanding transaction.') : _prodInvariant('27') : void 0;
+    var errorThrown;
+    var ret;
+    try {
+      this._isInTransaction = true;
+      errorThrown = true;
+      this.initializeAll(0);
+      ret = method.call(scope, a, b, c, d, e, f);
+      errorThrown = false;
+    } finally {
+      try {
+        if (errorThrown) {
+          try {
+            this.closeAll(0);
+          } catch (err) {}
+        } else {
+          this.closeAll(0);
+        }
+      } finally {
+        this._isInTransaction = false;
+      }
+    }
+    return ret;
+  },
+
+  initializeAll: function (startIndex) {
+    var transactionWrappers = this.transactionWrappers;
+    for (var i = startIndex; i < transactionWrappers.length; i++) {
+      var wrapper = transactionWrappers[i];
+      try {
+        this.wrapperInitData[i] = OBSERVED_ERROR;
+        this.wrapperInitData[i] = wrapper.initialize ? wrapper.initialize.call(this) : null;
+      } finally {
+        if (this.wrapperInitData[i] === OBSERVED_ERROR) {
+          try {
+            this.initializeAll(i + 1);
+          } catch (err) {}
+        }
+      }
+    }
+  },
+  closeAll: function (startIndex) {
+    !this.isInTransaction() ? "development" !== 'production' ? invariant(false, 'Transaction.closeAll(): Cannot close transaction when none are open.') : _prodInvariant('28') : void 0;
+    var transactionWrappers = this.transactionWrappers;
+    for (var i = startIndex; i < transactionWrappers.length; i++) {
+      var wrapper = transactionWrappers[i];
+      var initData = this.wrapperInitData[i];
+      var errorThrown;
+      try {
+        errorThrown = true;
+        if (initData !== OBSERVED_ERROR && wrapper.close) {
+          wrapper.close.call(this, initData);
+        }
+        errorThrown = false;
+      } finally {
+        if (errorThrown) {
+          try {
+            this.closeAll(i + 1);
+          } catch (e) {}
+        }
+      }
+    }
+    this.wrapperInitData.length = 0;
+  }
+};
+
+///////////////////
+
+
+//////////////////
+Object pool mechanism
+
+1. Pool container, a class or function addPoolingTo, then it inherit the pool mechanism. e.g function Car(){}; PooledClass.addPoolingTo(Car); var carInstance = Car.getPooled();
+	
+	var oneArgumentPooler = function (copyFieldsFrom) {
+	  var Klass = this;
+	  if (Klass.instancePool.length) {
+		var instance = Klass.instancePool.pop();
+		Klass.call(instance, copyFieldsFrom);
+		return instance;
+	  } else {
+		return new Klass(copyFieldsFrom);
+	  }
+	};
+	var twoArgumentPooler = function (a1, a2) {
+	  var Klass = this;
+	  if (Klass.instancePool.length) {
+		var instance = Klass.instancePool.pop();
+		Klass.call(instance, a1, a2);
+		return instance;
+	  } else {
+		return new Klass(a1, a2);
+	  }
+	};
+	var threeArgumentPooler = function (a1, a2, a3) {
+	  var Klass = this;
+	  if (Klass.instancePool.length) {
+		var instance = Klass.instancePool.pop();
+		Klass.call(instance, a1, a2, a3);
+		return instance;
+	  } else {
+		return new Klass(a1, a2, a3);
+	  }
+	};
+	var fourArgumentPooler = function (a1, a2, a3, a4) {
+	  var Klass = this;
+	  if (Klass.instancePool.length) {
+		var instance = Klass.instancePool.pop();
+		Klass.call(instance, a1, a2, a3, a4);
+		return instance;
+	  } else {
+		return new Klass(a1, a2, a3, a4);
+	  }
+	};
+	var standardReleaser = function (instance) {
+	  var Klass = this;
+	  !(instance instanceof Klass) ? "development" !== 'production' ? invariant(false, 'Trying to release an instance into a pool of a different type.') : _prodInvariant('25') : void 0;
+	  instance.destructor();
+	  if (Klass.instancePool.length < Klass.poolSize) {
+		Klass.instancePool.push(instance);
+	  }
+	};
+
+	var DEFAULT_POOL_SIZE = 10;
+	var DEFAULT_POOLER = oneArgumentPooler;
+	var addPoolingTo = function (CopyConstructor, pooler) {
+	  var NewKlass = CopyConstructor;
+	  NewKlass.instancePool = [];
+	  NewKlass.getPooled = pooler || DEFAULT_POOLER;
+	  if (!NewKlass.poolSize) {
+		NewKlass.poolSize = DEFAULT_POOL_SIZE;
+	  }
+	  NewKlass.release = standardReleaser;
+	  return NewKlass;
+	};
+	var PooledClass = {
+	  addPoolingTo: addPoolingTo,
+	  oneArgumentPooler: oneArgumentPooler,
+	  twoArgumentPooler: twoArgumentPooler,
+	  threeArgumentPooler: threeArgumentPooler,
+	  fourArgumentPooler: fourArgumentPooler
+	};
+//////////////////

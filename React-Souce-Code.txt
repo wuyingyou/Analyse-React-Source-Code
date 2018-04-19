@@ -1,0 +1,282 @@
+1. React Element
+
+instance: 
+
+{
+    $$typeof: REACT_ELEMENT_TYPE,
+    type: type,
+    key: key,
+    ref: ref,
+    props: props,
+    _owner: owner,
+	_store:
+	_self:
+	_source:
+}
+ReactElement class
+{
+   createElement: _func
+   createFactory: _func
+   cloneAndReplaceKey: _func
+   cloneElement: _func
+   isValidElement: _func
+}
+
+2. React Component
+
+ReactComponent class 
+
+function ReactComponent(props, context, updater) {
+  this.props = props;
+  this.context = context;
+  this.refs = emptyObject;
+  // We initialize the default updater but the real one gets injected by the
+  // renderer.
+  this.updater = updater || ReactNoopUpdateQueue;
+  
+  isReactComponent: _func
+  setState: _func
+  forceUpdate: _func
+}
+
+3. React Pure Component
+
+ReactPureComponent extend ReactComponent
+
+function ReactPureComponent(props, context, updater) {
+  // Duplicated from ReactComponent.
+  this.props = props;
+  this.context = context;
+  this.refs = emptyObject;
+  // We initialize the default updater but the real one gets injected by the
+  // renderer.
+  this.updater = updater || ReactNoopUpdateQueue;
+  this.isPureReactComponent = true;
+}
+
+
+4. ReactDOM renderer
+
+TopLevelWrapper Element
+
+{
+    $$typeof: REACT_ELEMENT_TYPE,
+    type: TopLevelWrapper,
+    key: key,
+    ref: ref,
+    props: {
+	  child: App Element
+	},
+    _owner: owner,
+	_store:
+	_self:
+	_source:
+}
+
+initialize Component or new it's instance
+
+
+ReactCompositeComponent  instance, now the root Element derive a ReactCompositeComponent  instance as below
+
+{
+   _currentElement = element;
+   _rootNodeID = 0;
+   _compositeType = null;
+   _instance = null;
+   _hostParent = null;
+   _hostContainerInfo = null;
+   _updateBatchNumber = null;
+   _pendingElement = null;
+   _pendingStateQueue = null;
+   _pendingReplaceState = false;
+   _pendingForceUpdate = false;
+   _renderedNodeType = null;
+   _renderedComponent = null;
+   _context = null;
+   _mountOrder = 0;
+   _topLevelWrapper = null;
+   _pendingCallbacks = null;
+   _calledComponentWillUnmount = false;
+   _warnedAboutRefsInRender = false;
+   
+    _mountIndex = 0;   // These two fields are used by the DOM and ART diffing algorithms
+    _mountImage = null;  // These two fields are used by the DOM and ART diffing algorithms
+}
+
+
+ReactUpdates.batchedUpdates(batchedMountComponentIntoNode, componentInstance /*root ReactCompositeComponent  instance */, container, shouldReuseMarkup, context);
+ ||
+ ||
+ \/
+batchedMountComponentIntoNode(componentInstance, container, shouldReuseMarkup, context )
+ ||
+ ||
+ \/
+ReactReconcileTransaction.peform(mountComponentIntoNode, null, componentInstance, container, transaction, shouldReuseMarkup, context)
+ ||
+ ||
+ \/
+mountComponentIntoNode(componentInstance, container, transaction, shouldReuseMarkup, context)
+ ||
+ ||
+ \/
+ var markup = ReactReconciler.mountComponent(wrapperInstance, transaction, null, ReactDOMContainerInfo(wrapperInstance, container), context, 0)
+  
+  ReactDOMContainerInfo(wrapperInstance, container)  ===== object below
+  
+   var info = {
+    _topLevelWrapper: topLevelWrapper,
+    _idCounter: 1,
+    _ownerDocument: node ? node.nodeType === DOC_NODE_TYPE ? node : node.ownerDocument : null,
+    _node: node,
+    _tag: node ? node.nodeName.toLowerCase() : null,
+    _namespaceURI: node ? node.namespaceURI : null
+	_ancestorInfo: node ? validateDOMNesting.updatedAncestorInfo(null, info._tag, null) : null;
+  };
+ ||
+ ||
+ \/
+internalInstance.mountComponent(transaction, hostParent, hostContainerInfo, context, parentDebugID);
+  
+ internalInstance is the wrapperInstance from the previous step. internalInstance is ReactCompositeComponent or ReactDOMComponent(generater DOM node)
+ ||
+ ||
+ \/
+ {
+   _currentElement = element;
+   _rootNodeID = 0;
+   _compositeType = null;
+   _instance = null; //set to inst in next step.
+   _hostParent = null;
+   _hostContainerInfo = null;
+   _updateBatchNumber = null;
+   _pendingElement = null;
+   _pendingStateQueue = null;
+   _pendingReplaceState = false;
+   _pendingForceUpdate = false;
+   _renderedNodeType = null;
+   _renderedComponent = null;
+   _context = null;
+   _mountOrder = 0;
+   _topLevelWrapper = null;
+   _pendingCallbacks = null;
+   _calledComponentWillUnmount = false;
+   _warnedAboutRefsInRender = false;
+   
+    _mountIndex = 0;   // These two fields are used by the DOM and ART diffing algorithms
+    _mountImage = null;  // These two fields are used by the DOM and ART diffing algorithms
+	
+	_context = context;
+    _mountOrder = nextMountID++;
+    _hostParent = hostParent;
+    _hostContainerInfo = hostContainerInfo;
+	
+	_compositeType =PureClass or ImpureClass;
+}
+  
+new _currentElement.type() === new TopLevelWrapper() as below.
+
+inst =
+	{
+		props = publicProps;
+		context = publicContext;
+		refs = emptyObject;
+		updater = updateQueue;
+		state = null
+	}
+
+  ReactInstanceMap.set(inst, this); // React.Component <---> ReactCompositeComponent
+  
+  markup = this.performInitialMount(renderedElement, hostParent, hostContainerInfo, transaction, context);
+ ||
+ ||
+ \/
+
+   var child = inst.render() = App
+   var renderedElement = child
+   var child = this._instantiateReactComponent(renderedElement, nodeType !== ReactNodeTypes.EMPTY /* shouldHaveDebugID */
+   
+   {
+   _currentElement = element; //App's element
+   _rootNodeID = 0;
+   _compositeType = null;
+   _instance = null;
+   _hostParent = null;
+   _hostContainerInfo = null;
+   _updateBatchNumber = null;
+   _pendingElement = null;
+   _pendingStateQueue = null;
+   _pendingReplaceState = false;
+   _pendingForceUpdate = false;
+   _renderedNodeType = null;
+   _renderedComponent = null;
+   _context = null;
+   _mountOrder = 0;
+   _topLevelWrapper = null;
+   _pendingCallbacks = null;
+   _calledComponentWillUnmount = false;
+   _warnedAboutRefsInRender = false;
+   
+    _mountIndex = 0;   // These two fields are used by the DOM and ART diffing algorithms
+    _mountImage = null;  // These two fields are used by the DOM and ART diffing algorithms
+}
+   
+   var markup = ReactReconciler.mountComponent(child, transaction, hostParent, hostContainerInfo, this._processChildContext(context), debugID);
+ ||
+ ||
+ \/
+ReactCompositeComponent.mountComponent(App, transaction, ...)
+  
+  inst2 =
+	{
+		props = publicProps;
+		context = publicContext;
+		refs = emptyObject;
+		updater = updateQueue; //the same as the root's.
+		state = null
+	}
+  ReactInstanceMap.set(inst2, App);
+  
+  
+  Here is a recursive call for ReactCompositeComponent.mountComponent(...) 
+  
+  return the markup
+  ||
+  ||
+  \/
+  wrapperInstance._renderedComponent._topLevelWrapper = wrapperInstance;
+  ReactMount._mountImageIntoNode(markup, container, wrapperInstance, shouldReuseMarkup, transaction);
+  ||
+  ||
+  \/
+   DOMLazyTree.insertTreeBefore(container, markup, null);
+  
+  
+  
+   if (transaction.useCreateElement) {
+      while (container.lastChild) {
+        container.removeChild(container.lastChild);
+      }
+      DOMLazyTree.insertTreeBefore(container, markup, null);
+    } else {
+      setInnerHTML(container, markup);
+      ReactDOMComponentTree.precacheNode(instance, container.firstChild);
+    }
+
+    if ("development" !== 'production') {
+      var hostNode = ReactDOMComponentTree.getInstanceFromNode(container.firstChild);
+      if (hostNode._debugID !== 0) {
+        ReactInstrumentation.debugTool.onHostOperation({
+          instanceID: hostNode._debugID,
+          type: 'mount',
+          payload: markup.toString()
+        });
+      }
+    }
+  
+
+ReactDOM
+
+
+
+

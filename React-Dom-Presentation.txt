@@ -1,0 +1,240 @@
+ 
+
+
+ var tag = element.type;
+  validateDangerousTag(tag);
+  this._currentElement = element;
+  this._tag = tag.toLowerCase();
+  this._namespaceURI = null;
+  this._renderedChildren = null;
+  this._previousStyle = null;
+  this._previousStyleCopy = null;
+  this._hostNode = null;
+  this._hostParent = null;
+  this._rootNodeID = 0;
+  this._domID = 0;
+  this._hostContainerInfo = null;
+  this._wrapperState = null;
+  this._topLevelWrapper = null;
+  this._flags = 0;  
+  
+////////////////////////////////////////////////////////
+
+    this._currentElement = element;
+    this._rootNodeID = 0;
+    this._compositeType = null;
+    this._instance = null;
+    this._hostParent = null;
+    this._hostContainerInfo = null;
+    this._updateBatchNumber = null;
+    this._pendingElement = null;
+    this._pendingStateQueue = null;
+    this._pendingReplaceState = false;
+    this._pendingForceUpdate = false;
+    this._renderedNodeType = null;
+    this._renderedComponent = null;
+    this._context = null;
+    this._mountOrder = 0;
+    this._topLevelWrapper = null;
+    this._pendingCallbacks = null;
+    this._calledComponentWillUnmount = false;
+	
+	this.updater.enqueueSetState(this, partialState);
+	
+	
+	function batchedMountComponentIntoNode(componentInstance, container, shouldReuseMarkup, context) {
+			var transaction = ReactUpdates.ReactReconcileTransaction.getPooled(
+			/* useCreateElement */
+			!shouldReuseMarkup && ReactDOMFeatureFlags.useCreateElement);
+			transaction.perform(mountComponentIntoNode, null, componentInstance, container, transaction, shouldReuseMarkup, context);
+			ReactUpdates.ReactReconcileTransaction.release(transaction);
+}
+	
+	  var markup = ReactReconciler.mountComponent(wrapperInstance, transaction, null, ReactDOMContainerInfo(wrapperInstance, container), context, 0 /* parentDebugID */
+  );
+	
+	
+	ReactCompositeComponent.mountComponent(transaction)
+	   var updateQueue = transaction.getUpdateQueue();
+	   
+	   
+	   
+	     enqueueSetState: function (publicInstance, partialState) {
+    if ("development" !== 'production') {
+      ReactInstrumentation.debugTool.onSetState();
+      "development" !== 'production' ? warning(partialState != null, 'setState(...): You passed an undefined or null state object; ' + 'instead, use forceUpdate().') : void 0;
+    }
+
+	
+
+  
+  
+  
+  dispatchEvent: function (topLevelType, nativeEvent) {
+    if (!ReactEventListener._enabled) {
+      return;
+    }
+
+	  batchingStrategy---> ReactDefaultBatchingStrategy  .initalizeAll()
+	
+    var bookKeeping = TopLevelCallbackBookKeeping.getPooled(topLevelType, nativeEvent);
+    try {
+      // Event queue being processed in the same cycle allows
+      // `preventDefault`.
+      ReactUpdates.batchedUpdates(handleTopLevelImpl, bookKeeping);
+    } finally {
+      TopLevelCallbackBookKeeping.release(bookKeeping);
+    }
+  }
+  
+   ||
+   ||
+   \/
+  
+ 
+  if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function' && typeof document !== 'undefined' && typeof document.createEvent === 'function') {
+    var fakeNode = document.createElement('react');
+    ReactErrorUtils.invokeGuardedCallback = function (name, func, a) {
+      var boundFunc = func.bind(null, a);
+      var evtType = 'react-' + name;
+      fakeNode.addEventListener(evtType, boundFunc, false);
+      var evt = document.createEvent('Event');
+      // $FlowFixMe https://github.com/facebook/flow/issues/2336
+      evt.initEvent(evtType, false, false);
+      fakeNode.dispatchEvent(evt);
+      fakeNode.removeEventListener(evtType, boundFunc, false);
+    };
+  }
+    ||
+	||
+	\/
+  
+   	this.setState({....})
+	
+	||
+	||
+	\/
+	
+	this.updater.enqueueSetState(this, partialState);
+	
+    var internalInstance = getInternalInstanceReadyForUpdate(publicInstance, 'setState');
+
+    if (!internalInstance) {
+      return;
+    }
+
+    var queue = internalInstance._pendingStateQueue || (internalInstance._pendingStateQueue = []);
+    queue.push(partialState);
+
+    enqueueUpdate(internalInstance);
+  }
+  
+  ||
+  ||
+  \/
+  
+  function enqueueUpdate(internalInstance) {
+  ReactUpdates.enqueueUpdate(internalInstance);
+}
+  
+  ||
+  ||
+  \/
+  
+  function enqueueUpdate(component) {
+	  ensureInjected();
+	  if (!batchingStrategy.isBatchingUpdates) {
+		batchingStrategy.batchedUpdates(enqueueUpdate, component);
+		return;
+	  }
+
+	  dirtyComponents.push(component);
+	  if (component._updateBatchNumber == null) {
+		component._updateBatchNumber = updateBatchNumber + 1;
+	  }
+}
+  
+  
+  ||
+  ||
+  \/
+  
+  batchingStrategy---> ReactDefaultBatchingStrategy  .close() --> runBatchedUpdates
+  
+  var ReactDefaultBatchingStrategy = {
+      isBatchingUpdates: false,
+	  batchedUpdates: function (callback, a, b, c, d, e) {
+		var alreadyBatchingUpdates = ReactDefaultBatchingStrategy.isBatchingUpdates;
+
+		ReactDefaultBatchingStrategy.isBatchingUpdates = true;
+
+		// The code is written this way to avoid extra allocations
+		if (alreadyBatchingUpdates) {
+		  return callback(a, b, c, d, e);
+		} else {
+		  return transaction.perform(callback, null, a, b, c, d, e);
+		}
+	  }
+	};
+  
+  
+   ReactUpdates.flushBatchedUpdates.bind(ReactUpdates)
+   
+   
+		function runBatchedUpdates(transaction) {
+			debugger;
+		  var len = transaction.dirtyComponentsLength;
+		  !(len === dirtyComponents.length) ? "development" !== 'production' ? invariant(false, 'Expected flush transaction\'s stored dirty-components length (%s) to match dirty-components array length (%s).', len, dirtyComponents.length) : _prodInvariant('124', len, dirtyComponents.length) : void 0;
+
+		  // Since reconciling a component higher in the owner hierarchy usually (not
+		  // always -- see shouldComponentUpdate()) will reconcile children, reconcile
+		  // them before their children by sorting the array.
+		  dirtyComponents.sort(mountOrderComparator);
+
+		  // Any updates enqueued while reconciling must be performed after this entire
+		  // batch. Otherwise, if dirtyComponents is [A, B] where A has children B and
+		  // C, B could update twice in a single batch if C's render enqueues an update
+		  // to B (since B would have already updated, we should skip it, and the only
+		  // way we can know to do so is by checking the batch counter).
+		  updateBatchNumber++;
+
+		  for (var i = 0; i < len; i++) {
+			// If a component is unmounted before pending changes apply, it will still
+			// be here, but we assume that it has cleared its _pendingCallbacks and
+			// that performUpdateIfNecessary is a noop.
+			var component = dirtyComponents[i];
+
+			// If performUpdateIfNecessary happens to enqueue any new updates, we
+			// shouldn't execute the callbacks until the next render happens, so
+			// stash the callbacks first
+			var callbacks = component._pendingCallbacks;
+			component._pendingCallbacks = null;
+
+			var markerName;
+			if (ReactFeatureFlags.logTopLevelRenders) {
+			  var namedComponent = component;
+			  // Duck type TopLevelWrapper. This is probably always true.
+			  if (component._currentElement.type.isReactTopLevelWrapper) {
+				namedComponent = component._renderedComponent;
+			  }
+			  markerName = 'React update: ' + namedComponent.getName();
+			  console.time(markerName);
+			}
+
+			ReactReconciler.performUpdateIfNecessary(component, transaction.reconcileTransaction, updateBatchNumber);
+
+			if (markerName) {
+			  console.timeEnd(markerName);
+			}
+
+			if (callbacks) {
+			  for (var j = 0; j < callbacks.length; j++) {
+				transaction.callbackQueue.enqueue(callbacks[j], component.getPublicInstance());
+			  }
+			}
+		  }
+		}
+  
+  
+  
+  
