@@ -12947,7 +12947,6 @@ function mountOrderComparator(c1, c2) {
 }
 
 function runBatchedUpdates(transaction) {
-    debugger;
   var len = transaction.dirtyComponentsLength;
   !(len === dirtyComponents.length) ? "development" !== 'production' ? invariant(false, 'Expected flush transaction\'s stored dirty-components length (%s) to match dirty-components array length (%s).', len, dirtyComponents.length) : _prodInvariant('124', len, dirtyComponents.length) : void 0;
 
