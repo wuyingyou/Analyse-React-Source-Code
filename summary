@@ -373,3 +373,105 @@ f. js中UMD模块加载结果如下:
     exports: ReactDOM
   },
 }
+
+f. Mount流程(第一次从无到有创建virtualDOM树以及DOM树) 
+react.js createElement创建的一个tree对象,有唯一根节点
+  var element = {
+    // This tag allow us to uniquely identify this as a React Element
+    $$typeof: REACT_ELEMENT_TYPE,
+    // Built-in properties that belong on the element
+    type: type, // 构造函数
+    key: key,
+    ref: ref,
+    props: props, // props属性参数,包括子元素
+    // Record the component responsible for creating this element.
+    _owner: owner
+  };
+
+ReactDOM.render(element, container, callback)会将element包装成ReactCompositeComponent对象或者是
+ReactDOMComponent
+ReactCompositeComponent: 
+{
+    _currentElement: element, // refer to element
+    _rootNodeID: 0,
+    _compositeType: null, // stateless or pure or composite
+    _instance: null, // refer to new element的实例
+    _hostParent: null,
+    _hostContainerInfo: null,
+
+    // See ReactUpdateQueue
+    _updateBatchNumber: null, // 批次更新的批次号
+    _pendingElement: null,
+    _pendingStateQueue: null, // setState json接口存放的入参栈
+    _pendingReplaceState: false, // 替换状态标志
+    _pendingForceUpdate: false, // 强制刷新标志
+
+    _renderedNodeType: null,
+    _renderedComponent: null, // 子组件也就render方法中的
+    _context: null,
+    _mountOrder: 0; // 组装顺序, 父组件先于子组件
+    _topLevelWrapper: null,
+
+    // See ReactUpdates and ReactUpdateQueue.
+    _pendingCallbacks: null, // setState callBack接口存放的入参栈
+
+    // ComponentWillUnmount shall only be called once
+    _calledComponentWillUnmount: false,
+}
+
+ReactDOMComponent: (ReactDOMComponent中不需要有_pendingCallbacks等因为不需要)
+{
+  _currentElement: element, // refer to element
+  _tag: tag.toLowerCase(), // 标签名称
+  _namespaceURI: null,
+  _renderedChildren: null, // 孩子节点单个或数组ReactCompositeComponent or ReactDOMComponent
+  _previousStyle: null,
+  _previousStyleCopy: null,
+  _hostNode: null, // 真正的Dom节点
+  _hostParent: null,
+  _rootNodeID: 0,
+  _domID: 0,
+  _hostContainerInfo: null,
+  _wrapperState: null,
+  _topLevelWrapper: null,
+  _flags: 0,
+}
+
+且相互引用
+1. new Home()._reactInternalInstance = ReactCompositeComponent
+2. ReactCompositeComponent._instance = new Home()或者
+3. document.createElement()['internalInstanceKey$e571hg6t2vg'] = ReactDOMComponent
+4. ReactDOMComponent._hostNode = document.createElement()
+然后递归ReactDOM.render子节点
+Mount过程处在ReactReconcileTransaction中, 每个ReactReconcileTransaction临时有一个CallBack回调栈用于componentWillMount、componnentDidMount
+componentWillMount先于componnentDidMount进栈,父组件的方法先于子组件方法进栈. Mount结束后执行回调且可以保证执行顺序为(仅仅执行一次): 子组件的componentWillMount-->
+子组件的componentDidMount,父组件的componentWillMount,父组件的componentDidMount...( var cbs = []; cbs.push(componentWillMount); cbs.push(componnentDidMount), for(i = 0; i<cb.length;i++){cb[i]();})
+
+Mount流程总结
+1. 创建virtual DOM树结构(ReactCompositeComponent & ReactDOMComponent)
+2. 创建DOM树结构
+3. 构建virtual DOM与自定义的React Component引用关系
+4. 构建DOM与ReactDOMComponent引用关系
+5. 构建React Component实例时设置实例的updater(updateQueue组件)
+或者(React Component视角)
+constructor()
+render()
+componentWillMount()
+componentDidMount()
+
+g. Update流程(setState)
+1. React Component实例触发this.setState({...}) or this.setState({...},() => { })
+2. diff Algorithm 
+3. 若有改变则进行更新
+
+或者(React Component视角)
+componentWillReceiveProps()
+shouldComponentUpdate()
+componentWillUpdate()
+render()
+componentDidUpdate()
+
+h. Unmount流程
+
+或者(React Component视角)
+componentWillUnmount()
