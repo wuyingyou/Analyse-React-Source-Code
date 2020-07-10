@@ -475,3 +475,25 @@ h. Unmount流程
 
 或者(React Component视角)
 componentWillUnmount()
+
+////////////////////////////////////////////////////////
+
+this.debounceOnChange = _.debounce(this.onChange, 300);
+this.onChange = (e) => {
+  console.log(e.target) // is null;
+}
+<input onChange={this.debounceOnChange}
+
+// root cause is SyntheticEvent is 'pooled', so async fetch is gonna get nullfilled
+
+||
+||
+\/
+this.debounceOnChange = _.debounce((e) => {
+   console.log(e.target) // achieved it
+}, 300);
+this.onChange = (e) => {
+  console.log(e.target) // enclosed e
+  this.debounceOnChange(e);
+}
+<input onChange={this.onChange}
